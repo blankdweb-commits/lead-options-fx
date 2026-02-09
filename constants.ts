@@ -2,11 +2,11 @@ import { StatData, ChartDataPoint, NavItem, Transaction } from './types';
 
 export const STATS_DATA: StatData[] = [
   { id: '1', label: 'Capital', value: '$500.00', iconName: 'DollarSign', accentColor: 'default' },
-  { id: '2', label: 'Profit', value: '$250,000.00', iconName: 'TrendingUp', accentColor: 'green' },
+  { id: '2', label: 'Profit', value: '$1,000,000.00', iconName: 'TrendingUp', accentColor: 'green' },
   { id: '3', label: 'Balance', value: '$250,500.00', iconName: 'Wallet', accentColor: 'default' },
-  { id: '4', label: 'Trades', value: 17, iconName: 'Activity', accentColor: 'default' },
-  { id: '5', label: 'Total Won', value: 30, iconName: 'CheckCircle', accentColor: 'green' },
-  { id: '6', label: 'Total Loss', value: 2, iconName: 'XCircle', accentColor: 'red' },
+  { id: '4', label: 'Trades', value: 60, iconName: 'Activity', accentColor: 'default' },
+  { id: '5', label: 'Total Won', value: 40, iconName: 'CheckCircle', accentColor: 'green' },
+  { id: '6', label: 'Total Loss', value: 20, iconName: 'XCircle', accentColor: 'red' },
 ];
 
 export const NAV_ITEMS: NavItem[] = [
