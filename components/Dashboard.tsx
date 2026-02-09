@@ -4,7 +4,7 @@ import StatCard from './StatCard';
 import TradingChart from './TradingChart';
 import AssetSelector from './AssetSelector';
 import { StatData } from '../types';
-import { TrendingUp, TrendingDown, Activity, Zap, RefreshCw } from 'lucide-react';
+import { TrendingUp, TrendingDown } from 'lucide-react';
 
 interface DashboardProps {
     financials: {
@@ -28,8 +28,6 @@ interface DashboardProps {
 const Dashboard: React.FC<DashboardProps> = ({ financials, setFinancials }) => {
   const [displayStats, setDisplayStats] = useState<StatData[]>(STATS_DATA);
   const [botStatus, setBotStatus] = useState<'active' | 'paused'>('active');
-  const [isSimulating, setIsSimulating] = useState(false);
-  const [simulationSpeed, setSimulationSpeed] = useState<'slow' | 'normal' | 'fast'>('normal');
   const [lastTradeResult, setLastTradeResult] = useState<{ type: 'win' | 'loss' | 'neutral', amount: number, asset: string } | null>(null);
   const [tradeHistory, setTradeHistory] = useState<Array<{time: string, asset: string, result: 'win' | 'loss', amount: number}>>([]);
 
@@ -102,24 +100,12 @@ const Dashboard: React.FC<DashboardProps> = ({ financials, setFinancials }) => {
     }
   };
 
-  // Simulation interval based on speed
+  // Auto-run simulation on component mount
   useEffect(() => {
-    if (!isSimulating || botStatus === 'paused' || financials.isCrashed) return;
-
-    const intervals = {
-      slow: 3000,
-      normal: 1500,
-      fast: 800
-    };
-
-    const interval = setInterval(generateRandomTrade, intervals[simulationSpeed]);
+    const interval = setInterval(generateRandomTrade, 1500); // Normal speed
+    
     return () => clearInterval(interval);
-  }, [isSimulating, botStatus, financials.isCrashed, simulationSpeed]);
-
-  // Auto-start simulation on component mount
-  useEffect(() => {
-    setIsSimulating(true);
-  }, []);
+  }, [financials.isCrashed]); // Re-run when crash status changes
 
   // Update stats display
   useEffect(() => {
@@ -154,39 +140,6 @@ const Dashboard: React.FC<DashboardProps> = ({ financials, setFinancials }) => {
   const buyPressure = financials.isCrashed ? 5 : Math.max(30, Math.min(80, 50 + (financials.profit / 10000)));
   const sellPressure = 100 - buyPressure;
 
-  const toggleSimulation = () => {
-    setIsSimulating(!isSimulating);
-  };
-
-  const toggleBot = () => {
-    setBotStatus(prev => prev === 'active' ? 'paused' : 'active');
-  };
-
-  const handleSpeedChange = (speed: 'slow' | 'normal' | 'fast') => {
-    setSimulationSpeed(speed);
-  };
-
-  // Manually trigger a trade
-  const triggerManualTrade = () => {
-    if (!financials.isCrashed) {
-      generateRandomTrade();
-    }
-  };
-
-  // Reset to default values
-  const resetFinancials = () => {
-    setFinancials({
-      balance: 250500.00,
-      profit: 250000.00,
-      activeTrades: 12,
-      totalWon: 30,
-      totalLost: 8,
-      isCrashed: false
-    });
-    setTradeHistory([]);
-    setLastTradeResult(null);
-  };
-
   return (
     <main className="p-4 lg:p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-700">
       
@@ -195,50 +148,6 @@ const Dashboard: React.FC<DashboardProps> = ({ financials, setFinancials }) => {
               ⚠️ WARNING: MARGIN CALL TRIGGERED. ACCOUNT LIQUIDATED. CONTACT SUPPORT.
           </div>
       )}
-
-      {/* Control Panel */}
-      <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-surface border border-zinc-800 rounded-xl">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={toggleSimulation}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all ${isSimulating ? 'border-red-500/50 text-red-400 hover:bg-red-500/10' : 'border-green-500/50 text-green-400 hover:bg-green-500/10'}`}
-          >
-            <Activity size={16} />
-            {isSimulating ? 'Pause Simulation' : 'Resume Simulation'}
-          </button>
-          
-          <div className="flex items-center gap-2 bg-zinc-900/50 rounded-lg p-1 border border-zinc-800">
-            {(['slow', 'normal', 'fast'] as const).map(speed => (
-              <button
-                key={speed}
-                onClick={() => handleSpeedChange(speed)}
-                className={`px-3 py-1.5 text-xs rounded-md transition-all ${simulationSpeed === speed ? 'bg-accentOrange text-white' : 'text-zinc-400 hover:text-white'}`}
-              >
-                {speed.charAt(0).toUpperCase() + speed.slice(1)}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <button
-            onClick={triggerManualTrade}
-            disabled={financials.isCrashed || botStatus === 'paused'}
-            className="flex items-center gap-2 px-4 py-2 bg-accentGreen/10 text-accentGreen border border-accentGreen/30 rounded-lg hover:bg-accentGreen/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Zap size={16} />
-            Trigger Trade
-          </button>
-          
-          <button
-            onClick={resetFinancials}
-            className="flex items-center gap-2 px-4 py-2 bg-zinc-800 text-zinc-300 border border-zinc-700 rounded-lg hover:bg-zinc-700 transition-all"
-          >
-            <RefreshCw size={16} />
-            Reset
-          </button>
-        </div>
-      </div>
 
       {/* Last Trade Notification */}
       {lastTradeResult && (
@@ -317,7 +226,7 @@ const Dashboard: React.FC<DashboardProps> = ({ financials, setFinancials }) => {
           <div className="space-y-3">
             {Object.entries(assetPrices).map(([asset, price]) => {
               const change = (Math.random() - 0.5) * 0.5;
-              const priceNumber = price as number; // Type assertion since we know it's a number
+              const priceNumber = price as number;
               return (
                 <div key={asset} className="flex items-center justify-between">
                   <span className="text-zinc-300 font-medium">{asset}</span>
@@ -355,7 +264,7 @@ const Dashboard: React.FC<DashboardProps> = ({ financials, setFinancials }) => {
                 </div>
               ))
             ) : (
-              <p className="text-zinc-500 text-center py-4">No trades yet. Start the simulation!</p>
+              <p className="text-zinc-500 text-center py-4">No trades yet. Starting soon...</p>
             )}
           </div>
         </div>
@@ -376,13 +285,13 @@ const Dashboard: React.FC<DashboardProps> = ({ financials, setFinancials }) => {
                      <h3 className="text-white font-bold text-lg">Trading Bot</h3>
                      <div className="flex items-center gap-2 bg-zinc-900/50 px-3 py-1.5 rounded-full border border-zinc-800">
                          <div className="relative flex h-2.5 w-2.5">
-                            {botStatus === 'active' && !financials.isCrashed && (
+                            {!financials.isCrashed && (
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                             )}
-                            <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${botStatus === 'active' && !financials.isCrashed ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                            <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${!financials.isCrashed ? 'bg-green-500' : 'bg-red-500'}`}></span>
                          </div>
                          <span className="text-[10px] text-zinc-300 font-bold uppercase tracking-wider">
-                           {botStatus === 'active' && !financials.isCrashed ? 'RUNNING' : 'STOPPED'}
+                           {!financials.isCrashed ? 'RUNNING' : 'STOPPED'}
                          </span>
                      </div>
                   </div>
@@ -459,18 +368,6 @@ const Dashboard: React.FC<DashboardProps> = ({ financials, setFinancials }) => {
                              })}
                          </div>
                   </div>
-
-                  <button 
-                    onClick={toggleBot}
-                    disabled={financials.isCrashed}
-                    className={`w-full py-3 rounded-xl text-xs font-bold mt-6 border transition-all shadow-lg active:scale-[0.98] ${
-                        botStatus === 'active' && !financials.isCrashed
-                        ? 'border-red-500/50 text-red-400 hover:bg-red-500/10 hover:border-red-500 hover:text-red-300 shadow-red-900/10' 
-                        : 'border-green-500/50 text-green-400 hover:bg-green-500/10 hover:border-green-500 hover:text-green-300 shadow-green-900/10 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent'
-                    }`}
-                  >
-                      {botStatus === 'active' && !financials.isCrashed ? 'STOP AUTO-TRADING' : 'RESUME AUTO-TRADING'}
-                  </button>
               </div>
            </div>
         </div>
