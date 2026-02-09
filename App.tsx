@@ -41,10 +41,10 @@ const App: React.FC = () => {
   // Global User Financial State (Lifted Up)
   const [financials, setFinancials] = useState({
       balance: 250500.00,
-      profit: 250000.00,
-      activeTrades: 12,
-      totalWon: 30,
-      totalLost: 8,
+      profit: 1000000.00,
+      activeTrades: 60,
+      totalWon: 40,
+      totalLost: 20,
       isCrashed: false
   });
 
@@ -113,7 +113,7 @@ const App: React.FC = () => {
     // Initialize financials for new user (different from existing demo user)
     if (role === 'user') {
       setFinancials({
-        balance: 500.00, // Starting balance for new users
+        balance: 0.00, // Starting balance for new users
         profit: 0,
         activeTrades: 0,
         totalWon: 0,
