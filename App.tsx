@@ -10,8 +10,10 @@ import Login from './components/Login';
 import AdminPanel from './components/AdminPanel';
 import ChatWidget from './components/ChatWidget';
 import Signup from './components/Signup';
+import BottomNav from './components/BottomNav';
 import { ChatSession, Message, StatData } from './types';
 import { STATS_DATA } from './constants';
+import { supabase } from './services/supabase';
 
 interface UserSession {
   email: string;
@@ -62,6 +64,40 @@ const App: React.FC = () => {
   // Global Chat State
   const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
   const [isChatOpen, setIsChatOpen] = useState(false);
+
+  // Supabase Auth Listener
+  useEffect(() => {
+    // Check active sessions and sets the user
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        const role = session.user.email?.endsWith('@leadoptions.fx') ? 'admin' : 'user';
+        setUser({
+          email: session.user.email || '',
+          role: role as 'user' | 'admin',
+          name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0]
+        });
+        setAuthView(role === 'admin' ? 'admin' : 'dashboard');
+      }
+    });
+
+    // Listen for changes on auth state (logged in, signed out, etc.)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        const role = session.user.email?.endsWith('@leadoptions.fx') ? 'admin' : 'user';
+        setUser({
+          email: session.user.email || '',
+          role: role as 'user' | 'admin',
+          name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0]
+        });
+        setAuthView(role === 'admin' ? 'admin' : 'dashboard');
+      } else {
+        setUser(null);
+        setAuthView('login');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   // Simulation Loop for Live Figures
   useEffect(() => {
@@ -126,7 +162,8 @@ const App: React.FC = () => {
     setCurrentView('Dashboard');
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     setUser(null);
     setAuthView('login');
     setCurrentView('Dashboard');
@@ -278,6 +315,8 @@ const App: React.FC = () => {
           </div>
           
            <Footer serviceFee={systemSettings.serviceFee} />
+
+           <BottomNav currentView={currentView} onNavigate={setCurrentView} />
 
            {/* Customer Support Widget */}
            <ChatWidget 

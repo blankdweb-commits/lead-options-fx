@@ -3,8 +3,9 @@ import { STATS_DATA } from '../constants';
 import StatCard from './StatCard';
 import TradingChart from './TradingChart';
 import AssetSelector from './AssetSelector';
+import InvestmentPlans from './InvestmentPlans';
 import { StatData } from '../types';
-import { TrendingUp, TrendingDown } from 'lucide-react';
+import { TrendingUp, TrendingDown, Percent, BarChart3, Clock } from 'lucide-react';
 
 interface DashboardProps {
     financials: {
@@ -141,7 +142,7 @@ const Dashboard: React.FC<DashboardProps> = ({ financials, setFinancials }) => {
   const sellPressure = 100 - buyPressure;
 
   return (
-    <main className="p-4 lg:p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-700">
+    <main className="p-4 lg:p-8 max-w-7xl mx-auto space-y-6 lg:space-y-8 animate-in fade-in duration-700">
       
       {financials.isCrashed && (
           <div className="bg-red-500/10 border border-red-500 text-red-500 px-4 py-3 rounded-xl flex items-center justify-center font-bold animate-pulse">
@@ -176,14 +177,46 @@ const Dashboard: React.FC<DashboardProps> = ({ financials, setFinancials }) => {
       )}
 
       {/* Stats Grid */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+      <section className="grid grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-6">
         {displayStats.map((stat) => (
           <StatCard key={stat.id} data={stat} />
         ))}
       </section>
 
+      {/* Bot Performance Detail Grid */}
+      <section className="grid grid-cols-2 sm:grid-cols-4 gap-3 lg:gap-4">
+          <div className="bg-surface border border-zinc-800 rounded-xl p-4 flex flex-col gap-1">
+              <div className="flex items-center gap-2 text-zinc-500 mb-1">
+                  <Percent size={14} className="text-accentGreen" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider">Avg. Daily ROI</span>
+              </div>
+              <span className="text-xl font-bold text-white">+2.45%</span>
+          </div>
+          <div className="bg-surface border border-zinc-800 rounded-xl p-4 flex flex-col gap-1">
+              <div className="flex items-center gap-2 text-zinc-500 mb-1">
+                  <BarChart3 size={14} className="text-accentOrange" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider">Total ROI</span>
+              </div>
+              <span className="text-xl font-bold text-white">+184.2%</span>
+          </div>
+          <div className="bg-surface border border-zinc-800 rounded-xl p-4 flex flex-col gap-1">
+              <div className="flex items-center gap-2 text-zinc-500 mb-1">
+                  <Clock size={14} className="text-blue-400" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider">Bot Uptime</span>
+              </div>
+              <span className="text-xl font-bold text-white">99.9%</span>
+          </div>
+          <div className="bg-surface border border-zinc-800 rounded-xl p-4 flex flex-col gap-1">
+              <div className="flex items-center gap-2 text-zinc-500 mb-1">
+                  <TrendingUp size={14} className="text-purple-400" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider">24h PnL</span>
+              </div>
+              <span className="text-xl font-bold text-accentGreen">+$2,450.00</span>
+          </div>
+      </section>
+
       {/* Performance Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         <div className="bg-surface border border-zinc-800 rounded-xl p-6">
           <h3 className="text-white font-bold text-lg mb-4">Win Rate</h3>
           <div className="flex items-end justify-between">
@@ -269,6 +302,9 @@ const Dashboard: React.FC<DashboardProps> = ({ financials, setFinancials }) => {
           </div>
         </div>
       </div>
+
+      {/* Investment Plans Section */}
+      <InvestmentPlans />
 
       {/* Trading Section */}
       <section className="mt-8">
