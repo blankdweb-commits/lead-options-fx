@@ -39,11 +39,54 @@ const PLANS = [
 ];
 
 const InvestmentPlans: React.FC = () => {
+  const [calcAmount, setCalcAmount] = React.useState<number>(1000);
+  const [selectedPlan, setSelectedPlan] = React.useState(PLANS[1]);
+
+  const estimatedProfit = React.useMemo(() => {
+    const [min, max] = selectedPlan.roi.replace('%', '').split('-').map(Number);
+    const avgRoi = (min + max) / 2;
+    return (calcAmount * avgRoi) / 100;
+  }, [calcAmount, selectedPlan]);
+
   return (
-    <section className="py-6">
-      <div className="flex flex-col mb-8">
-        <h2 className="text-2xl font-bold text-white tracking-tight">Investment Plans</h2>
-        <p className="text-zinc-400 text-sm mt-1">Choose a bot tier to automate your trading and maximize returns.</p>
+    <section className="py-6 space-y-10">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <h2 className="text-2xl font-bold text-white tracking-tight">Investment Plans</h2>
+          <p className="text-zinc-400 text-sm mt-1">Choose a bot tier to automate your trading and maximize returns.</p>
+        </div>
+
+        {/* Quick ROI Calculator */}
+        <div className="bg-surface border border-zinc-800 rounded-2xl p-4 flex flex-col sm:flex-row items-center gap-4 shadow-xl">
+           <div className="flex flex-col gap-1">
+              <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Investment Amount</label>
+              <div className="relative">
+                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 font-bold">$</span>
+                 <input
+                    type="number"
+                    value={calcAmount}
+                    onChange={(e) => setCalcAmount(Number(e.target.value))}
+                    className="bg-zinc-900 border border-zinc-700 rounded-lg pl-7 pr-3 py-1.5 text-sm font-bold text-white focus:outline-none focus:border-accentOrange w-32"
+                 />
+              </div>
+           </div>
+           <div className="hidden sm:block w-px h-10 bg-zinc-800"></div>
+           <div className="flex flex-col gap-1">
+              <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Selected Plan</label>
+              <select
+                value={selectedPlan.name}
+                onChange={(e) => setSelectedPlan(PLANS.find(p => p.name === e.target.value) || PLANS[1])}
+                className="bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-1.5 text-sm font-bold text-white focus:outline-none focus:border-accentOrange"
+              >
+                {PLANS.map(p => <option key={p.name} value={p.name}>{p.name}</option>)}
+              </select>
+           </div>
+           <div className="hidden sm:block w-px h-10 bg-zinc-800"></div>
+           <div className="flex flex-col gap-1">
+              <label className="text-[10px] font-bold text-accentGreen uppercase tracking-wider">Est. Profit</label>
+              <span className="text-lg font-black text-accentGreen">${estimatedProfit.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+           </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
