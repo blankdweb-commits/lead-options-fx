@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { UserPlus, Lock, Mail, User, ArrowRight, AlertCircle, ShieldCheck, Building } from 'lucide-react';
+import { supabase } from '../services/supabase';
 
 interface SignupProps {
   onSignup: (email: string, name: string, role: 'user' | 'admin') => void;
@@ -19,7 +20,7 @@ const Signup: React.FC<SignupProps> = ({ onSignup, onSwitchToLogin }) => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     
@@ -45,36 +46,32 @@ const Signup: React.FC<SignupProps> = ({ onSignup, onSwitchToLogin }) => {
 
     setIsLoading(true);
 
-    // Simulate network delay
-    setTimeout(() => {
-      // Check if email already exists (in real app, this would be API call)
-      const existingUsers = [
-        'admin@leadoptions.fx',
-        'alex.morgan@leadoptions.fx'
-      ];
-      
-      if (existingUsers.includes(formData.email.toLowerCase())) {
-        setError('Email already registered. Please use a different email or login.');
+    try {
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            full_name: `${formData.firstName} ${formData.lastName}`,
+            account_type: formData.accountType,
+          }
+        }
+      });
+
+      if (signUpError) {
+        setError(signUpError.message);
         setIsLoading(false);
         return;
       }
 
-      // Generate a unique ID for the new user
-      const userId = Math.random().toString(36).substring(2, 10);
-      const fullName = `${formData.firstName} ${formData.lastName}`;
-      
-      // Simulate successful signup
-      console.log('New user created:', {
-        id: userId,
-        ...formData,
-        name: fullName,
-        createdAt: new Date().toISOString()
-      });
-
-      // Call the signup callback
-      onSignup(formData.email, fullName, formData.accountType);
+      if (data.user) {
+        const fullName = `${formData.firstName} ${formData.lastName}`;
+        onSignup(formData.email, fullName, formData.accountType);
+      }
+    } catch (err: any) {
+      setError('An unexpected error occurred. Please try again.');
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {

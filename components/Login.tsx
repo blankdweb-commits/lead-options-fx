@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Lock, Mail, ArrowRight, AlertCircle, ShieldCheck } from 'lucide-react';
+import { supabase } from '../services/supabase';
 
 interface LoginProps {
   onLogin: (role: 'user' | 'admin', email: string) => void;
@@ -12,22 +13,31 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSwitchToSignup }) => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
 
-    // Simulate network delay
-    setTimeout(() => {
-      if (email === 'admin@leadoptions.fx' && password === 'admin123') {
-        onLogin('admin', email);
-      } else if (email === 'alex.morgan@leadoptions.fx' && password === 'password') {
-        onLogin('user', email);
-      } else {
-        setError('Invalid credentials. Please try again.');
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        setError(error.message);
         setIsLoading(false);
+        return;
       }
-    }, 800);
+
+      if (data.user) {
+        const role = data.user.email?.endsWith('@leadoptions.fx') ? 'admin' : 'user';
+        onLogin(role as 'user' | 'admin', data.user.email || '');
+      }
+    } catch (err: any) {
+      setError('An unexpected error occurred. Please try again.');
+      setIsLoading(false);
+    }
   };
 
   return (

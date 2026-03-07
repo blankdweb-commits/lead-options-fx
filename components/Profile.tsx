@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { User, Shield, Key, Save, Smartphone, Mail, Camera, AlertCircle } from 'lucide-react';
+import { supabase } from '../services/supabase';
 
 interface ProfileProps {
   userImage: string;
@@ -54,16 +55,30 @@ const Profile: React.FC<ProfileProps> = ({ userImage, onUpdateImage }) => {
     setErrors(prev => ({ ...prev, [name]: error }));
   };
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (reader.result) {
-            onUpdateImage(reader.result as string);
+      try {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `avatars/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('profiles')
+          .upload(filePath, file);
+
+        if (uploadError) {
+          throw uploadError;
         }
-      };
-      reader.readAsDataURL(file);
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('profiles')
+          .getPublicUrl(filePath);
+
+        onUpdateImage(publicUrl);
+      } catch (error: any) {
+        alert('Error uploading image: ' + error.message);
+      }
     }
   };
 
