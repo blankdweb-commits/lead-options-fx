@@ -75,6 +75,12 @@ To ensure that all frontend routes are handled correctly by the React applicatio
 3.  Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` with their respective values.
 4.  Redeploy the application for the changes to take effect.
 
+### Using Supabase in Vercel Backend (Serverless Functions)
+If you decide to add server-side logic via Vercel Functions:
+1.  **Dependencies:** Ensure `@supabase/supabase-js` is in your `package.json`.
+2.  **Initialization:** Use the same environment variables (without `VITE_` prefix if not using Vite's auto-exposure) to initialize the client.
+3.  **Service Role Key:** For backend operations that need to bypass RLS, use the `service_role` key (keep this strictly in Vercel Environment Variables and NEVER expose it to the frontend).
+
 ## 7. Supabase Storage Policies for Production
 
 For the `profiles` bucket to work correctly in production:
