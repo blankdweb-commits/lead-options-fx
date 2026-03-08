@@ -57,6 +57,42 @@ const { data: { publicUrl } } = supabase.storage
   .getPublicUrl(filePath);
 ```
 
-## 6. Security Note
+## 6. Vercel Integration
+
+### SPA Routing
+To ensure that all frontend routes are handled correctly by the React application on Vercel, a `vercel.json` file has been added with the following rewrite rule:
+```json
+{
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
+```
+
+### Environment Variables on Vercel
+1.  Go to your project on the Vercel Dashboard.
+2.  Navigate to `Settings` > `Environment Variables`.
+3.  Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` with their respective values.
+4.  Redeploy the application for the changes to take effect.
+
+## 7. Supabase Storage Policies for Production
+
+For the `profiles` bucket to work correctly in production:
+
+1.  **Bucket Name:** Ensure the bucket name is exactly `profiles`.
+2.  **Public Access:** The bucket should be set to "Public".
+3.  **RLS Policies:**
+    -   **Read Access:** `true` (Allow everyone to read).
+    -   **Upload Access:** `auth.uid() = owner` or similar logic to allow authenticated users to upload to their folder.
+    -   **Update/Delete Access:** Restricted to the owner of the file.
+
+## 8. Troubleshooting Blank Page
+
+If you encounter a blank page on Vercel:
+1.  **Check Console Logs:** Look for errors related to failed module loading or missing environment variables.
+2.  **Verify Vite Config:** Ensure that `base: '/'` is set or default, and that `build.outDir` matches Vercel's expectations (usually `dist`).
+3.  **Dependency Resolution:** If using `importmap`, it may conflict with Vite's build process. It is recommended to let Vite manage all dependencies.
+
+## 9. Security Note
 
 Always ensure that Row Level Security (RLS) is enabled on your tables and buckets to protect user data.
