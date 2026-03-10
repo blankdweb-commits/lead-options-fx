@@ -1,5 +1,6 @@
 {
   "name": "Lead Options FX Dashboard",
   "description": "A high-contrast, dark-mode fintech trading dashboard featuring real-time data visualization, responsive design, and a professional trading interface.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [],
+  "favicon": "https://supabase.com/favicons/favicon-32x32.png"
 }
