@@ -8,8 +8,15 @@ if (!rootElement) {
 }
 
 const root = ReactDOM.createRoot(rootElement);
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+
+// Wrap in a basic error boundary or try-catch for debugging production crashes
+try {
+  root.render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  );
+} catch (error) {
+  console.error("Rendering Error:", error);
+  rootElement.innerHTML = `<div style="padding: 20px; color: red;"><h1>App Crash</h1><p>${error}</p></div>`;
+}

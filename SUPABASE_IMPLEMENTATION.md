@@ -2,6 +2,15 @@
 
 This guide provides a step-by-step explanation on how to set up and integrate Supabase into the Lead Options FX application.
 
+## 🚀 CRITICAL: Deployment Checklist (Fixing Blank Pages)
+
+If your site is blank on Vercel, follow this exactly:
+
+1.  **Environment Variables:** You MUST add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` to Vercel Settings > Environment Variables.
+2.  **Redeploy:** After adding variables, you MUST trigger a new deployment for them to take effect.
+3.  **Vercel Configuration:** Ensure `vercel.json` is in your root directory (included in this update).
+4.  **No index.css:** The project uses Tailwind CDN; ensure no code is trying to import a non-existent `index.css`.
+
 ## 1. Supabase Project Setup
 
 1.  **Create a Project:** Go to [Supabase](https://supabase.com/) and create a new project.
@@ -69,11 +78,12 @@ To ensure that all frontend routes are handled correctly by the React applicatio
 }
 ```
 
-### Environment Variables on Vercel
+### Environment Variables on Vercel (CRITICAL)
 1.  Go to your project on the Vercel Dashboard.
 2.  Navigate to `Settings` > `Environment Variables`.
 3.  Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` with their respective values.
-4.  Redeploy the application for the changes to take effect.
+4.  **CRITICAL:** The app will show a blank page or throw initialization errors if these are missing. Ensure they are correctly spelled and have no leading/trailing spaces.
+5.  Redeploy the application for the changes to take effect.
 
 ### Using Supabase in Vercel Backend (Serverless Functions)
 If you decide to add server-side logic via Vercel Functions:
