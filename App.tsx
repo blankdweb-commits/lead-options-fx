@@ -244,6 +244,20 @@ const App: React.FC = () => {
   };
 
   // Render different views based on auth state
+  if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+     return (
+        <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 text-center">
+            <div className="bg-red-500/10 border border-red-500/50 p-8 rounded-2xl max-w-md">
+                <h1 className="text-2xl font-bold text-white mb-4">Configuration Required</h1>
+                <p className="text-zinc-400 mb-6">Supabase environment variables are missing. Please add <strong>VITE_SUPABASE_URL</strong> and <strong>VITE_SUPABASE_ANON_KEY</strong> to your Vercel settings.</p>
+                <div className="text-xs text-zinc-500 bg-black/50 p-4 rounded-lg text-left font-mono">
+                    Check SUPABASE_IMPLEMENTATION.md for details.
+                </div>
+            </div>
+        </div>
+     );
+  }
+
   if (authView === 'login') {
     return <Login onLogin={handleLogin} onSwitchToSignup={handleSwitchToSignup} />;
   }

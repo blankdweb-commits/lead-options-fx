@@ -8,8 +8,9 @@ If your site is blank on Vercel, follow this exactly:
 
 1.  **Environment Variables:** You MUST add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` to Vercel Settings > Environment Variables.
 2.  **Redeploy:** After adding variables, you MUST trigger a new deployment for them to take effect.
-3.  **Vercel Configuration:** Ensure `vercel.json` is in your root directory (included in this update).
-4.  **No index.css:** The project uses Tailwind CDN; ensure no code is trying to import a non-existent `index.css`.
+3.  **Vercel Configuration:** Ensure `vercel.json` is in your root directory.
+4.  **Output Directory:** Vite builds to the `dist` folder. In Vercel Project Settings, ensure "Output Directory" is set to `dist` (this is handled automatically by the included `vercel.json`).
+5.  **No index.css:** The project uses Tailwind CDN; ensure no code is trying to import a non-existent `index.css`.
 
 ## 1. Supabase Project Setup
 
