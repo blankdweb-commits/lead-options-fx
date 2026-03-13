@@ -7,6 +7,8 @@ This guide provides a step-by-step explanation on how to set up and integrate Su
 If your site is blank on Vercel, follow this exactly:
 
 1.  **Environment Variables:** You MUST add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` to Vercel Settings > Environment Variables.
+    -   Ensure there are no leading or trailing spaces.
+    -   Redeploy the site after adding variables.
 2.  **Redeploy:** After adding variables, you MUST trigger a new deployment for them to take effect.
 3.  **Vercel Configuration:** Ensure `vercel.json` is in your root directory.
 4.  **Output Directory:** Vite builds to the `dist` folder. In Vercel Project Settings, ensure "Output Directory" is set to `dist` (this is handled automatically by the included `vercel.json`).
